@@ -135,18 +135,18 @@ class ResNet(nn.Module):
         return output
     
     def freeze(self):
-        conv1.requires_grad = False
-        conv2_x.requires_grad = False
-        conv3_x.requires_grad = False
-        conv4_x.requires_grad = False
-        conv5_x.requires_grad = False
+        self.conv1.requires_grad = False
+        self.conv2_x.requires_grad = False
+        self.conv3_x.requires_grad = False
+        self.conv4_x.requires_grad = False
+        self.conv5_x.requires_grad = False
         
     def unfreeze(self):
-        conv1.requires_grad = True
-        conv2_x.requires_grad = True
-        conv3_x.requires_grad = True
-        conv4_x.requires_grad = True
-        conv5_x.requires_grad = True
+        self.conv1.requires_grad = True
+        self.conv2_x.requires_grad = True
+        self.conv3_x.requires_grad = True
+        self.conv4_x.requires_grad = True
+        self.conv5_x.requires_grad = True
         
     def set_output_size(self, size):
         self.fc = nn.Linear(512, size)
