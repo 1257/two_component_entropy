@@ -51,11 +51,11 @@ superclass = [ 4,  1, 14,  8,  0,  #номер суперкласса соотв
               18,  1,  2, 15,  6,  
                0, 17,  8, 14, 13]
 
-def train(epoch):
+def train(epoch, trainloader):
 
     start = time.time()
     net.train()
-    for batch_index, (images, labels) in enumerate(cifar100_training_loader):
+    for batch_index, (images, labels) in enumerate(trainloader):
 
         if args.gpu:
             labels = labels.cuda()
@@ -68,7 +68,7 @@ def train(epoch):
         loss.backward()
         optimizer.step()
 
-        n_iter = (epoch - 1) * len(cifar100_training_loader) + batch_index + 1
+        n_iter = (epoch - 1) * len(trainloader) + batch_index + 1
 
         last_layer = list(net.children())[-1]
         
@@ -83,7 +83,7 @@ def train(epoch):
             optimizer.param_groups[0]['lr'],
             epoch=epoch,
             trained_samples=batch_index * args.b + len(images),
-            total_samples=len(cifar100_training_loader.dataset)
+            total_samples=len(trainloader.dataset)
         ))
 
         #update training loss for each iteration
@@ -102,16 +102,17 @@ def train(epoch):
     print('epoch {} training time consumed: {:.2f}s'.format(epoch, finish - start))
 
 @torch.no_grad()
-def eval_training(epoch=0, tb=True):
+def eval_training(epoch=0, tb=True, testloader, only_coarse):
 
     start = time.time()
     net.eval()
 
     test_loss = 0.0 # cost function error
-    correct = 0.0
+    if only_coarse==False:
+        correct = 0.0
     correctCoarse = 0.0
 
-    for (images, labels) in cifar100_test_loader:
+    for (images, labels) in testloader:
 
         if args.gpu:
             images = images.cuda()
@@ -129,7 +130,8 @@ def eval_training(epoch=0, tb=True):
         predsCoarse=torch.tensor(predsCoarse).cuda()
         realCoarse=torch.tensor(realCoarse).cuda()
         
-        correct += preds.eq(labels).sum()
+        if only_coarse==False:
+            correct += preds.eq(labels).sum()
         correctCoarse += predsCoarse.eq(realCoarse).sum()
 
     finish = time.time()
@@ -137,24 +139,39 @@ def eval_training(epoch=0, tb=True):
         print('GPU INFO.....')
         print(torch.cuda.memory_summary(), end='')
     print('Evaluating Network.....')
-    print('Test set: Epoch: {}, Average loss: {:.4f}, Accuracy100: {:.4f}, Accuracy20: {:.4f}, Time consumed:{:.2f}s'.format(
-        epoch,
-        test_loss / len(cifar100_test_loader.dataset),
-        correct.float() / len(cifar100_test_loader.dataset),
-        correctCoarse.float() / len(cifar100_test_loader.dataset),
-        finish - start
-    ))
+    
+    if only_coarse==False:
+        print('Test set: Epoch: {}, Average loss: {:.4f}, Accuracy100: {:.4f}, Accuracy20: {:.4f}, Time consumed:{:.2f}s'.format(
+            epoch,
+            test_loss / len(testloader.dataset),
+            correct.float() / len(testloader.dataset),
+            correctCoarse.float() / len(testloader.dataset),
+            finish - start
+        ))
+    else:
+        print('Test set: Epoch: {}, Average loss: {:.4f}, Accuracy20: {:.4f}, Time consumed:{:.2f}s'.format(
+            epoch,
+            test_loss / len(testloader.dataset),
+            correctCoarse.float() / len(testloader.dataset),
+            finish - start
+        ))
+        
     print()
-    wandb.log({"accuracy 100": correct.float() / len(cifar100_test_loader.dataset)})
-    wandb.log({"accuracy 20": correctCoarse.float() / len(cifar100_test_loader.dataset)})
+    if only_coarse==False:
+        wandb.log({"accuracy 100": correct.float() / len(testloader.dataset)})
+    wandb.log({"accuracy 20": correctCoarse.float() / len(testloader.dataset)})
 
     #add informations to tensorboard
     if tb:
-        writer.add_scalar('Test/Average loss', test_loss / len(cifar100_test_loader.dataset), epoch)
-        writer.add_scalar('Test/Accuracy100', correct.float() / len(cifar100_test_loader.dataset), epoch)
-        writer.add_scalar('Test/Accuracy20', correctCoarse.float() / len(cifar100_test_loader.dataset), epoch)
+        writer.add_scalar('Test/Average loss', test_loss / len(testloader.dataset), epoch)
+        if only_coarse==False:
+            writer.add_scalar('Test/Accuracy100', correct.float() / len(testloader.dataset), epoch)
+        writer.add_scalar('Test/Accuracy20', correctCoarse.float() / len(testloader.dataset), epoch)
 
-    return correct.float() / len(cifar100_test_loader.dataset)
+    if only_coarse==False:
+        return correct.float() / len(testloader.dataset)
+    else:
+        return correctCoarse.float() / len(testloader.dataset)
 
 if __name__ == '__main__':
     wandb.init(project="two_steps", entity="hierarchical_classification")
@@ -254,7 +271,7 @@ if __name__ == '__main__':
             if epoch <= resume_epoch:
                 continue
 
-        train(epoch)
+        train(epoch, cifar100_coarse_training_loader)
         acc = eval_training(epoch)
 
         #start to save best performance model after learning rate decay to 0.01
@@ -280,13 +297,13 @@ if __name__ == '__main__':
     
     for epoch in range(1, settings.EPOCH + 1):
         if epoch > args.warm:
-            train_scheduler.step(epoch)
+            train_scheduler1.step(epoch)
 
         if args.resume:
             if epoch <= resume_epoch:
                 continue
 
-        train(epoch)
+        train(epoch, cifar100_fine_training_loader)
         acc = eval_training(epoch)
 
         #start to save best performance model after learning rate decay to 0.01
@@ -305,20 +322,20 @@ if __name__ == '__main__':
       
     #-------------------------------------------part 3-------------------------------------------------------
     net.unfreeze()
-    optimizer1 = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
-    train_scheduler1 = optim.lr_scheduler.MultiStepLR(optimizer1, milestones=settings.MILESTONES, gamma=0.2) #learning rate decay
-    iter_per_epoch1 = len(cifar100_fine_training_loader)
-    warmup_scheduler1 = WarmUpLR(optimizer1, iter_per_epoch1 * args.warm)        
+    optimizer2 = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
+    train_scheduler2 = optim.lr_scheduler.MultiStepLR(optimizer2, milestones=settings.MILESTONES, gamma=0.2) #learning rate decay
+    iter_per_epoch2 = len(cifar100_fine_training_loader)
+    warmup_scheduler2 = WarmUpLR(optimizer2, iter_per_epoch1 * args.warm)        
     
     for epoch in range(1, settings.EPOCH + 1):
         if epoch > args.warm:
-            train_scheduler.step(epoch)
+            train_scheduler2.step(epoch)
 
         if args.resume:
             if epoch <= resume_epoch:
                 continue
 
-        train(epoch)
+        train(epoch, cifar100_fine_training_loader)
         acc = eval_training(epoch)
 
         #start to save best performance model after learning rate decay to 0.01
