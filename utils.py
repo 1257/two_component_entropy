@@ -6,6 +6,7 @@ import os
 import sys
 import re
 import datetime
+from conf import settings
 
 import numpy
 
