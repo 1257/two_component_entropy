@@ -302,6 +302,7 @@ if __name__ == '__main__':
 #-------------------------------------------part 2-------------------------------------------------------
     net.set_output_size(100)
     net.freeze()
+    net=net.cuda()
     optimizer1 = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
     train_scheduler1 = optim.lr_scheduler.MultiStepLR(optimizer1, milestones=settings.MILESTONES_CLASS, gamma=0.2) #learning rate decay
     iter_per_epoch1 = len(cifar100_fine_training_loader)
@@ -334,6 +335,7 @@ if __name__ == '__main__':
       
     #-------------------------------------------part 3-------------------------------------------------------
     net.unfreeze()
+    net=net.cuda()
     optimizer2 = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
     train_scheduler2 = optim.lr_scheduler.MultiStepLR(optimizer2, milestones=settings.AFTERMILESTONES , gamma=0.2) #learning rate decay
     iter_per_epoch2 = len(cifar100_fine_training_loader)
