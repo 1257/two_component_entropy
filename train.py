@@ -108,9 +108,10 @@ def eval_training(epoch=0, tb=True, testloader, only_coarse):
     net.eval()
 
     test_loss = 0.0 # cost function error
+    
+    correct = 0.0
     if only_coarse==False:
-        correct = 0.0
-    correctCoarse = 0.0
+        correctCoarse = 0.0
 
     for (images, labels) in testloader:
 
@@ -124,15 +125,16 @@ def eval_training(epoch=0, tb=True, testloader, only_coarse):
         test_loss += loss.item()
         _, preds = outputs.max(1)
         
-        predsCoarse = [superclass[preds[i]] for i in range(len(labels))]
-        realCoarse = [superclass[labels[i]] for i in range(len(labels))]
-        
-        predsCoarse=torch.tensor(predsCoarse).cuda()
-        realCoarse=torch.tensor(realCoarse).cuda()
-        
         if only_coarse==False:
-            correct += preds.eq(labels).sum()
-        correctCoarse += predsCoarse.eq(realCoarse).sum()
+            predsCoarse = [superclass[preds[i]] for i in range(len(labels))]
+            realCoarse = [superclass[labels[i]] for i in range(len(labels))]
+        
+            predsCoarse=torch.tensor(predsCoarse).cuda()
+            realCoarse=torch.tensor(realCoarse).cuda()
+        
+        correct += preds.eq(labels).sum()
+        if only_coarse==False:
+            correctCoarse += predsCoarse.eq(realCoarse).sum()
 
     finish = time.time()
     if args.gpu:
@@ -152,26 +154,27 @@ def eval_training(epoch=0, tb=True, testloader, only_coarse):
         print('Test set: Epoch: {}, Average loss: {:.4f}, Accuracy20: {:.4f}, Time consumed:{:.2f}s'.format(
             epoch,
             test_loss / len(testloader.dataset),
-            correctCoarse.float() / len(testloader.dataset),
+            correct.float() / len(testloader.dataset),
             finish - start
         ))
         
     print()
     if only_coarse==False:
         wandb.log({"accuracy 100": correct.float() / len(testloader.dataset)})
-    wandb.log({"accuracy 20": correctCoarse.float() / len(testloader.dataset)})
+        wandb.log({"accuracy 20": correctCoarse.float() / len(testloader.dataset)})
+    else:
+        wandb.log({"accuracy 20": correct.float() / len(testloader.dataset)})
 
     #add informations to tensorboard
     if tb:
         writer.add_scalar('Test/Average loss', test_loss / len(testloader.dataset), epoch)
         if only_coarse==False:
             writer.add_scalar('Test/Accuracy100', correct.float() / len(testloader.dataset), epoch)
-        writer.add_scalar('Test/Accuracy20', correctCoarse.float() / len(testloader.dataset), epoch)
+            writer.add_scalar('Test/Accuracy20', correctCoarse.float() / len(testloader.dataset), epoch)
+        else:
+            writer.add_scalar('Test/Accuracy20', correct.float() / len(testloader.dataset), epoch)
 
-    if only_coarse==False:
-        return correct.float() / len(testloader.dataset)
-    else:
-        return correctCoarse.float() / len(testloader.dataset)
+    return correct.float() / len(testloader.dataset)
 
 if __name__ == '__main__':
     wandb.init(project="two_steps", entity="hierarchical_classification")
@@ -201,6 +204,14 @@ if __name__ == '__main__':
     )
 
     cifar100_test_loader = get_test_dataloader(
+        settings.CIFAR100_TRAIN_MEAN,
+        settings.CIFAR100_TRAIN_STD,
+        num_workers=4,
+        batch_size=args.b,
+        shuffle=True
+    )
+    
+    cifar100_coarse_test_loader = get_coarse_test_dataloader(
         settings.CIFAR100_TRAIN_MEAN,
         settings.CIFAR100_TRAIN_STD,
         num_workers=4,
