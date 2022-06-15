@@ -192,8 +192,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     net = get_network(args)
-    print(net)
     net.set_output_size(20) 
+    net=net.cuda()
 
     #data preprocessing:
     cifar100_coarse_training_loader, cifar100_fine_training_loader = get_splitted_dataloaders(
