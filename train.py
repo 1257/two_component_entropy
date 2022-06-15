@@ -172,9 +172,10 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     net = get_network(args)
+    net.set_output_size(20) 
 
     #data preprocessing:
-    cifar100_training_loader = get_training_dataloader(
+    cifar100_coarse_training_loader, cifar100_fine_training_loader = get_splitted_dataloaders(
         settings.CIFAR100_TRAIN_MEAN,
         settings.CIFAR100_TRAIN_STD,
         num_workers=4,
@@ -193,7 +194,7 @@ if __name__ == '__main__':
     loss_function = nn.CrossEntropyLoss()
     optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
     train_scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=settings.MILESTONES, gamma=0.2) #learning rate decay
-    iter_per_epoch = len(cifar100_training_loader)
+    iter_per_epoch = len(cifar100_coarse_training_loader)
     warmup_scheduler = WarmUpLR(optimizer, iter_per_epoch * args.warm)
 
     if args.resume:
@@ -268,5 +269,68 @@ if __name__ == '__main__':
             weights_path = checkpoint_path.format(net=args.net, epoch=epoch, type='regular')
             print('saving weights file to {}'.format(weights_path))
             torch.save(net.state_dict(), weights_path)
+            
+#-------------------------------------------part 2-------------------------------------------------------
+    net.set_output_size(100)
+    net.freeze()
+    optimizer1 = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
+    train_scheduler1 = optim.lr_scheduler.MultiStepLR(optimizer1, milestones=settings.MILESTONES, gamma=0.2) #learning rate decay
+    iter_per_epoch1 = len(cifar100_fine_training_loader)
+    warmup_scheduler1 = WarmUpLR(optimizer1, iter_per_epoch1 * args.warm)        
+    
+    for epoch in range(1, settings.EPOCH + 1):
+        if epoch > args.warm:
+            train_scheduler.step(epoch)
 
+        if args.resume:
+            if epoch <= resume_epoch:
+                continue
+
+        train(epoch)
+        acc = eval_training(epoch)
+
+        #start to save best performance model after learning rate decay to 0.01
+        if epoch > settings.MILESTONES[1] and best_acc < acc:
+            weights_path = checkpoint_path.format(net=args.net, epoch=epoch, type='best')
+            print('saving weights file to {}'.format(weights_path))
+            torch.save(net.state_dict(), weights_path)
+            best_acc = acc
+            continue
+
+        if not epoch % settings.SAVE_EPOCH:
+            weights_path = checkpoint_path.format(net=args.net, epoch=epoch, type='regular')
+            print('saving weights file to {}'.format(weights_path))
+            torch.save(net.state_dict(), weights_path)
+            
+      
+    #-------------------------------------------part 3-------------------------------------------------------
+    net.unfreeze()
+    optimizer1 = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
+    train_scheduler1 = optim.lr_scheduler.MultiStepLR(optimizer1, milestones=settings.MILESTONES, gamma=0.2) #learning rate decay
+    iter_per_epoch1 = len(cifar100_fine_training_loader)
+    warmup_scheduler1 = WarmUpLR(optimizer1, iter_per_epoch1 * args.warm)        
+    
+    for epoch in range(1, settings.EPOCH + 1):
+        if epoch > args.warm:
+            train_scheduler.step(epoch)
+
+        if args.resume:
+            if epoch <= resume_epoch:
+                continue
+
+        train(epoch)
+        acc = eval_training(epoch)
+
+        #start to save best performance model after learning rate decay to 0.01
+        if epoch > settings.MILESTONES[1] and best_acc < acc:
+            weights_path = checkpoint_path.format(net=args.net, epoch=epoch, type='best')
+            print('saving weights file to {}'.format(weights_path))
+            torch.save(net.state_dict(), weights_path)
+            best_acc = acc
+            continue
+
+        if not epoch % settings.SAVE_EPOCH:
+            weights_path = checkpoint_path.format(net=args.net, epoch=epoch, type='regular')
+            print('saving weights file to {}'.format(weights_path))
+            torch.save(net.state_dict(), weights_path)        
     writer.close()
