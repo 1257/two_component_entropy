@@ -16,6 +16,26 @@ import torchvision
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 
+superclass = [ 4,  1, 14,  8,  0,  #номер суперкласса соответствует номеру в иерархии на сайте (морские млекопитающие=0, рыбы=1 и т.д.)
+               6,  7,  7, 18,  3,  #номер класса соответствует лейблам в датасете
+               3, 14,  9, 18,  7, 
+              11,  3,  9,  7, 11,  
+               6, 11,  5, 10,  7,  
+               6, 13, 15,  3, 15,
+               0, 11,  1, 10, 12, 
+              14, 16,  9, 11,  5,
+               5, 19,  8,  8, 15, 
+              13, 14, 17, 18, 10,
+              16,  4, 17,  4,  2,  
+               0, 17,  4, 18, 17,
+              10,  3,  2, 12, 12, 
+              16, 12,  1,  9, 19,
+               2, 10,  0,  1, 16, 
+              12,  9, 13, 15, 13,
+              16, 19,  2,  4,  6, 
+              19,  5,  5,  8, 19,
+              18,  1,  2, 15,  6,  
+               0, 17,  8, 14, 13]
 
 def get_network(args):
     """ return given network
@@ -163,6 +183,14 @@ def get_network(args):
 
     return net
 
+def change_labels_to_coarse(dataset): 
+    newset=list(dataset)
+    for i in range(len(newset)):
+        buf=list(newset[i])
+        buf[1]=superclass[buf[1]] 
+        newset[i]=tuple(buf)
+    
+    return newset
 
 def get_training_dataloader(mean, std, batch_size=16, num_workers=2, shuffle=True):
     """ return training dataloader
@@ -196,6 +224,41 @@ def get_training_dataloader(mean, std, batch_size=16, num_workers=2, shuffle=Tru
         cifar100_trainset1, shuffle=shuffle, num_workers=num_workers, batch_size=batch_size)
 
     return cifar100_training_loader
+
+def get_splitted_dataloaders(mean, std, batch_size=16, num_workers=2, shuffle=True): #True в первом параметре, если порядок классов изменен
+    """ return training dataloader
+    Args:
+        mean: mean of cifar100 training dataset
+        std: std of cifar100 training dataset
+        path: path to cifar100 training python dataset
+        batch_size: dataloader batchsize
+        num_workers: dataloader num_works
+        shuffle: whether to shuffle
+    Returns: train_data_loader:torch dataloader object
+    """
+
+    transform_train = transforms.Compose([
+        #transforms.ToPILImage(),
+        transforms.RandomCrop(32, padding=4),
+        transforms.RandomHorizontalFlip(),
+        transforms.RandomRotation(15),
+        transforms.ToTensor(),
+        transforms.Normalize(mean, std)
+    ])
+    
+    cifar100_training = torchvision.datasets.CIFAR100(root='./data', train=True, download=True, transform=transform_train)
+    cifar100_trainset1, cifar100_trainset2 = torch.utils.data.random_split(cifar100_training, [settings.COMPLEX_TRAINSET_SIZE, 50000-settings.COMPLEX_TRAINSET_SIZE], generator=torch.Generator().manual_seed(0))
+    print('First dataset size:', len(cifar100_trainset2)) #trainset2 - with coarse 
+    print('Second dataset size:', len(cifar100_trainset1)) #trainset1 - with classes
+    
+    cifar100_trainset2_1=change_labels_to_coarse(cifar100_trainset2)
+   
+    cifar100_training_loader1 = DataLoader(
+          cifar100_trainset1, shuffle=shuffle, num_workers=num_workers, batch_size=batch_size)
+    cifar100_training_loader2 = DataLoader(
+          cifar100_trainset2_1, shuffle=shuffle, num_workers=num_workers, batch_size=batch_size)
+
+    return cifar100_training_loader2, cifar100_training_loader1
 
 def get_test_dataloader(mean, std, batch_size=16, num_workers=2, shuffle=True):
     """ return training dataloader
