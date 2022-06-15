@@ -19,7 +19,7 @@ EXPERIMENT = "baseline"
 
 #directory to save weights file
 CHECKPOINT_PATH = 'checkpoint'
-COMPLEX_TRAINSET_SIZE = 50000
+COMPLEX_TRAINSET_SIZE = 10000
 #total training epoches
 #EPOCH = 200
 EPOCH = 90
