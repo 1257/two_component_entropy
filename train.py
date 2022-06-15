@@ -102,7 +102,7 @@ def train(epoch, trainloader):
     print('epoch {} training time consumed: {:.2f}s'.format(epoch, finish - start))
 
 @torch.no_grad()
-def eval_training(epoch=0, tb=True, testloader, only_coarse):
+def eval_training(testloader, only_coarse, epoch=0, tb=True):
 
     start = time.time()
     net.eval()
@@ -283,7 +283,7 @@ if __name__ == '__main__':
                 continue
 
         train(epoch, cifar100_coarse_training_loader)
-        acc = eval_training(epoch)
+        acc = eval_training(cifar100_coarse_test_loader, True, epoch)
 
         #start to save best performance model after learning rate decay to 0.01
         if epoch > settings.PREMILESTONES[1] and best_acc < acc:
@@ -315,7 +315,7 @@ if __name__ == '__main__':
                 continue
 
         train(epoch, cifar100_fine_training_loader)
-        acc = eval_training(epoch)
+        acc = eval_training(cifar100_fine_training_loader, False, epoch)
 
         #start to save best performance model after learning rate decay to 0.01
         if epoch > settings.MILESTONES_CLASS[1] and best_acc < acc:
@@ -347,7 +347,7 @@ if __name__ == '__main__':
                 continue
 
         train(epoch, cifar100_fine_training_loader)
-        acc = eval_training(epoch)
+        acc = eval_training(cifar100_fine_training_loader, False, epoch)
 
         #start to save best performance model after learning rate decay to 0.01
         if epoch > settings.AFTERMILESTONES[1] and best_acc < acc:
