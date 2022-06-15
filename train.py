@@ -5,7 +5,7 @@
 
 author baiyu
 """
-
+import wandb
 import os
 import sys
 import argparse
@@ -23,8 +23,33 @@ from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
 from conf import settings
-from utils import get_network, get_training_dataloader, get_test_dataloader, WarmUpLR, \
+from utils import get_network, get_training_dataloader, get_single_training_dataloader, get_training_dataloader_with_hierarhy, get_test_dataloader, get_test_dataloader_with_hierarhy, WarmUpLR, \
     most_recent_folder, most_recent_weights, last_epoch, best_acc_weights
+
+#from entropy_2_levels import entropy2lvl
+import entropy_2_levels as myEntropy
+from models.resnet import ResNet, BasicBlock
+
+superclass = [ 4,  1, 14,  8,  0,  #номер суперкласса соответствует номеру в иерархии на сайте (морские млекопитающие=0, рыбы=1 и т.д.)
+               6,  7,  7, 18,  3,  #номер класса соответствует лейблам в датасете
+               3, 14,  9, 18,  7, 
+              11,  3,  9,  7, 11,  
+               6, 11,  5, 10,  7,  
+               6, 13, 15,  3, 15,
+               0, 11,  1, 10, 12, 
+              14, 16,  9, 11,  5,
+               5, 19,  8,  8, 15, 
+              13, 14, 17, 18, 10,
+              16,  4, 17,  4,  2,  
+               0, 17,  4, 18, 17,
+              10,  3,  2, 12, 12, 
+              16, 12,  1,  9, 19,
+               2, 10,  0,  1, 16, 
+              12,  9, 13, 15, 13,
+              16, 19,  2,  4,  6, 
+              19,  5,  5,  8, 19,
+              18,  1,  2, 15,  6,  
+               0, 17,  8, 14, 13]
 
 def train(epoch):
 
@@ -45,6 +70,8 @@ def train(epoch):
         n_iter = (epoch - 1) * len(cifar100_training_loader) + batch_index + 1
 
         last_layer = list(net.children())[-1]
+        print("net childrens: ", list(net.children()))
+        
         for name, para in last_layer.named_parameters():
             if 'weight' in name:
                 writer.add_scalar('LastLayerGradients/grad_norm2_weights', para.grad.norm(), n_iter)
