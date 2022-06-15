@@ -133,6 +133,23 @@ class ResNet(nn.Module):
         output = self.fc(output)
 
         return output
+    
+    def freeze(self):
+        conv1.requires_grad = False
+        conv2_x.requires_grad = False
+        conv3_x.requires_grad = False
+        conv4_x.requires_grad = False
+        conv5_x.requires_grad = False
+        
+    def unfreeze(self):
+        conv1.requires_grad = True
+        conv2_x.requires_grad = True
+        conv3_x.requires_grad = True
+        conv4_x.requires_grad = True
+        conv5_x.requires_grad = True
+        
+    def set_output_size(self, size):
+        self.fc = nn.Linear(512 * block.expansion, size)
 
 def resnet18():
     """ return a ResNet 18 object
