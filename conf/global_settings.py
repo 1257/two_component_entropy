@@ -21,8 +21,14 @@ EXPERIMENT = "baseline"
 CHECKPOINT_PATH = 'checkpoint'
 COMPLEX_TRAINSET_SIZE = 50000
 #total training epoches
-EPOCH = 200
+#EPOCH = 200
+EPOCH = 90
+EPOCH_CLASS = 50
 MILESTONES = [60, 120, 160]
+
+PREMILESTONES = [30, 50, 70]
+MILESTONES_CLASS = [15, 25, 35]
+AFTERMILESTONES = [30, 50, 70]
 
 #initial learning rate
 #INIT_LR = 0.1
