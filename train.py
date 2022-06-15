@@ -27,7 +27,7 @@ from utils import get_network, get_training_dataloader, get_test_dataloader, War
     most_recent_folder, most_recent_weights, last_epoch, best_acc_weights
 
 #from entropy_2_levels import entropy2lvl
-import entropy_2_levels as myEntropy
+#import entropy_2_levels as myEntropy
 from models.resnet import ResNet, BasicBlock
 
 superclass = [ 4,  1, 14,  8,  0,  #номер суперкласса соответствует номеру в иерархии на сайте (морские млекопитающие=0, рыбы=1 и т.д.)
