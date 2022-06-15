@@ -108,6 +108,7 @@ def eval_training(epoch=0, tb=True):
 
     test_loss = 0.0 # cost function error
     correct = 0.0
+    correctCoarse = 0.0
 
     for (images, labels) in cifar100_test_loader:
 
@@ -120,17 +121,26 @@ def eval_training(epoch=0, tb=True):
 
         test_loss += loss.item()
         _, preds = outputs.max(1)
+        
+        predsCoarse = [superclass[preds[i]] for i in range(len(labels))]
+        realCoarse = [superclass[labels[i]] for i in range(len(labels))]
+        
+        predsCoarse=torch.tensor(predsCoarse).cuda()
+        realCoarse=torch.tensor(realCoarse).cuda()
+        
         correct += preds.eq(labels).sum()
+        correctCoarse += predsCoarse.eq(realCoarse).sum()
 
     finish = time.time()
     if args.gpu:
         print('GPU INFO.....')
         print(torch.cuda.memory_summary(), end='')
     print('Evaluating Network.....')
-    print('Test set: Epoch: {}, Average loss: {:.4f}, Accuracy: {:.4f}, Time consumed:{:.2f}s'.format(
+    print('Test set: Epoch: {}, Average loss: {:.4f}, Accuracy100: {:.4f}, Accuracy20: {:.4f}, Time consumed:{:.2f}s'.format(
         epoch,
         test_loss / len(cifar100_test_loader.dataset),
         correct.float() / len(cifar100_test_loader.dataset),
+        correctCoarse.float() / len(cifar100_test_loader.dataset),
         finish - start
     ))
     print()
@@ -138,7 +148,8 @@ def eval_training(epoch=0, tb=True):
     #add informations to tensorboard
     if tb:
         writer.add_scalar('Test/Average loss', test_loss / len(cifar100_test_loader.dataset), epoch)
-        writer.add_scalar('Test/Accuracy', correct.float() / len(cifar100_test_loader.dataset), epoch)
+        writer.add_scalar('Test/Accuracy100', correct.float() / len(cifar100_test_loader.dataset), epoch)
+        writer.add_scalar('Test/Accuracy20', correctCoarse.float() / len(cifar100_test_loader.dataset), epoch)
 
     return correct.float() / len(cifar100_test_loader.dataset)
 
