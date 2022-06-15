@@ -70,7 +70,6 @@ def train(epoch):
         n_iter = (epoch - 1) * len(cifar100_training_loader) + batch_index + 1
 
         last_layer = list(net.children())[-1]
-        print("net childrens: ", list(net.children()))
         
         for name, para in last_layer.named_parameters():
             if 'weight' in name:
