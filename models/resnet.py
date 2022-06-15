@@ -149,7 +149,7 @@ class ResNet(nn.Module):
         conv5_x.requires_grad = True
         
     def set_output_size(self, size):
-        self.fc = nn.Linear(512 * block.expansion, size)
+        self.fc = nn.Linear(512, size)
 
 def resnet18():
     """ return a ResNet 18 object
