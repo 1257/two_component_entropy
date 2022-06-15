@@ -192,6 +192,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     net = get_network(args)
+    print(net)
     net.set_output_size(20) 
 
     #data preprocessing:
