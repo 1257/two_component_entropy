@@ -210,7 +210,7 @@ if __name__ == '__main__':
 
     loss_function = nn.CrossEntropyLoss()
     optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
-    train_scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=settings.MILESTONES, gamma=0.2) #learning rate decay
+    train_scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=settings.PREMILESTONES, gamma=0.2) #learning rate decay
     iter_per_epoch = len(cifar100_coarse_training_loader)
     warmup_scheduler = WarmUpLR(optimizer, iter_per_epoch * args.warm)
 
@@ -275,7 +275,7 @@ if __name__ == '__main__':
         acc = eval_training(epoch)
 
         #start to save best performance model after learning rate decay to 0.01
-        if epoch > settings.MILESTONES[1] and best_acc < acc:
+        if epoch > settings.PREMILESTONES[1] and best_acc < acc:
             weights_path = checkpoint_path.format(net=args.net, epoch=epoch, type='best')
             print('saving weights file to {}'.format(weights_path))
             torch.save(net.state_dict(), weights_path)
@@ -291,11 +291,11 @@ if __name__ == '__main__':
     net.set_output_size(100)
     net.freeze()
     optimizer1 = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
-    train_scheduler1 = optim.lr_scheduler.MultiStepLR(optimizer1, milestones=settings.MILESTONES, gamma=0.2) #learning rate decay
+    train_scheduler1 = optim.lr_scheduler.MultiStepLR(optimizer1, milestones=settings.MILESTONES_CLASS, gamma=0.2) #learning rate decay
     iter_per_epoch1 = len(cifar100_fine_training_loader)
     warmup_scheduler1 = WarmUpLR(optimizer1, iter_per_epoch1 * args.warm)        
     
-    for epoch in range(1, settings.EPOCH + 1):
+    for epoch in range(1, settings.EPOCH_CLASS + 1):
         if epoch > args.warm:
             train_scheduler1.step(epoch)
 
@@ -307,7 +307,7 @@ if __name__ == '__main__':
         acc = eval_training(epoch)
 
         #start to save best performance model after learning rate decay to 0.01
-        if epoch > settings.MILESTONES[1] and best_acc < acc:
+        if epoch > settings.MILESTONES_CLASS[1] and best_acc < acc:
             weights_path = checkpoint_path.format(net=args.net, epoch=epoch, type='best')
             print('saving weights file to {}'.format(weights_path))
             torch.save(net.state_dict(), weights_path)
@@ -323,7 +323,7 @@ if __name__ == '__main__':
     #-------------------------------------------part 3-------------------------------------------------------
     net.unfreeze()
     optimizer2 = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
-    train_scheduler2 = optim.lr_scheduler.MultiStepLR(optimizer2, milestones=settings.MILESTONES, gamma=0.2) #learning rate decay
+    train_scheduler2 = optim.lr_scheduler.MultiStepLR(optimizer2, milestones=settings.AFTERMILESTONES , gamma=0.2) #learning rate decay
     iter_per_epoch2 = len(cifar100_fine_training_loader)
     warmup_scheduler2 = WarmUpLR(optimizer2, iter_per_epoch1 * args.warm)        
     
@@ -339,7 +339,7 @@ if __name__ == '__main__':
         acc = eval_training(epoch)
 
         #start to save best performance model after learning rate decay to 0.01
-        if epoch > settings.MILESTONES[1] and best_acc < acc:
+        if epoch > settings.AFTERMILESTONES[1] and best_acc < acc:
             weights_path = checkpoint_path.format(net=args.net, epoch=epoch, type='best')
             print('saving weights file to {}'.format(weights_path))
             torch.save(net.state_dict(), weights_path)
