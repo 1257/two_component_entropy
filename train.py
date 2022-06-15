@@ -144,6 +144,8 @@ def eval_training(epoch=0, tb=True):
         finish - start
     ))
     print()
+    wandb.log({"accuracy 100": correct.float() / len(cifar100_test_loader.dataset)})
+    wandb.log({"accuracy 20": correctCoarse.float() / len(cifar100_test_loader.dataset)})
 
     #add informations to tensorboard
     if tb:
@@ -154,7 +156,11 @@ def eval_training(epoch=0, tb=True):
     return correct.float() / len(cifar100_test_loader.dataset)
 
 if __name__ == '__main__':
-
+    wandb.init(project="two_steps", entity="hierarchical_classification")
+    wandb.config = {"epochs": 200, "batch_size": 128}
+    
+    wandb.log({"fine set size": settings.COMPLEX_TRAINSET_SIZE})
+    
     parser = argparse.ArgumentParser()
     parser.add_argument('-net', type=str, required=True, help='net type')
     parser.add_argument('-gpu', action='store_true', default=False, help='use gpu or not')
