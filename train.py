@@ -55,10 +55,11 @@ def train(epoch, trainloader):
 
     start = time.time()
     net.train()
-    for batch_index, (images, labels) in enumerate(trainloader):
+    for batch_index, (images, superclass_labels, labels) in enumerate(trainloader):
 
         if args.gpu:
             labels = labels.cuda()
+            superclass_labels = superclass_labels.cuda()
             images = images.cuda()
 
         optimizer.zero_grad()
