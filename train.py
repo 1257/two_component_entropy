@@ -52,7 +52,7 @@ superclass = [ 4,  1, 14,  8,  0,  #номер суперкласса соотв
                0, 17,  8, 14, 13]
 
 def train(epoch, trainloader):
-
+    loss_function=twoComponentLoss
     start = time.time()
     net.train()
     for batch_index, (images, superclass_labels, labels) in enumerate(trainloader):
@@ -64,7 +64,7 @@ def train(epoch, trainloader):
 
         optimizer.zero_grad()
         outputs = net(images)
-        loss = loss_function2(outputs, labels)  #set func
+        loss = loss_function(outputs, labels, superclass_labels)  #set func
         wandb.log({"trainloss": loss})
         loss.backward()
         optimizer.step()
