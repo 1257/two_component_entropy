@@ -232,18 +232,18 @@ def twoComponentLoss(outputs, class_labels, superclass_labels):
     indices = torch.nonzero(mask) 
     
     for i in indices:
-      outputs[i][2]=0
-      class_labels[i]=0
+      outputs = torch.cat((outputs[:,:i], outputs[:,i:]), axis = 1)
+      class_labels=torch.cat((class_labels[:,:i], class_labels[:,i:]), axis = 1)
     
-    outs1=torch.tensor(outputs).cuda()
-    classes1=torch.tensor(class_labels).cuda()
+    #outs1=torch.tensor(outputs).cuda()
+    #classes1=torch.tensor(class_labels).cuda()
     
     #print("outs1: ", outs1)
     
-    #print("shape of outs1: ", outs1.size())
-    #print("shape of classes1: ", classes1.size())
+    print("shape of outputs: ", outputs.size())
+    print("shape of class_labels: ", class_labels.size())
     
-    l2=loss(outs1, classes1)   
+    l2=loss(outputs, class_labels)   
     print(l2)
     
     return 0.7*l1+0.3*l2
