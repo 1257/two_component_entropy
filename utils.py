@@ -231,8 +231,11 @@ def twoComponentLoss(outputs, class_labels, superclass_labels):
     mask = class_labels >= 0
     indices = torch.nonzero(mask) 
     
-    outs1=torch.tensor(outputs[indices]).cuda()
-    classes1=torch.tensor(class_labels[indices]).cuda()
+    for i in indices:
+      outputs[i][2]=-1
+    
+    outs1=torch.tensor(outputs).cuda()
+    classes1=torch.tensor(class_labels).cuda()
     
     print("outs1: ", outs1)
     
