@@ -244,7 +244,7 @@ def twoComponentLoss(outputs, class_labels, superclass_labels):
     print("shape of class_labels: ", class_labels.size())
     
     l2=loss(outputs, class_labels)   
-    print(l2)
+    #print(l2)
     
     return 0.7*l1+0.3*l2
     
