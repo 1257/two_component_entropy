@@ -272,8 +272,13 @@ def get_training_dataloader(mean, std, batch_size=16, num_workers=2, shuffle=Tru
     for i in range(settings.COMPLEX_TRAINSET_SIZE):
         cifar100_trainset1[i].append(superclass[cifar100_trainset1[i][1])
     
+    cifar100_global_dataset=cifar100_trainset2+cifar100_trainset1
+    print("\nglobal dataset labels:")
+    for i in range(20):
+        print(cifar100_global_dataset[i][1], '-->', cifar100_global_dataset[i][2])
+                                                
     cifar100_training_loader = DataLoader(
-        cifar100_trainset1, shuffle=shuffle, num_workers=num_workers, batch_size=batch_size)
+        cifar100_global_dataset, shuffle=shuffle, num_workers=num_workers, batch_size=batch_size)
 
     return cifar100_training_loader
 
