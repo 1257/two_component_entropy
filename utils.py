@@ -225,7 +225,7 @@ def get_training_dataloader(mean, std, batch_size=16, num_workers=2, shuffle=Tru
 
     return cifar100_training_loader
 
-def get_splitted_dataloaders(mean, std, batch_size=16, num_workers=2, shuffle=True): #True в первом параметре, если порядок классов изменен
+def get_splitted_dataloaders(mean, std, batch_size=16, num_workers=2, shuffle=True):
     """ return training dataloader
     Args:
         mean: mean of cifar100 training dataset
@@ -248,10 +248,19 @@ def get_splitted_dataloaders(mean, std, batch_size=16, num_workers=2, shuffle=Tr
     
     cifar100_training = torchvision.datasets.CIFAR100(root='./data', train=True, download=True, transform=transform_train)
     cifar100_trainset1, cifar100_trainset2 = torch.utils.data.random_split(cifar100_training, [settings.COMPLEX_TRAINSET_SIZE, 50000-settings.COMPLEX_TRAINSET_SIZE], generator=torch.Generator().manual_seed(0))
-    print('First dataset size:', len(cifar100_trainset2)) #trainset2 - with coarse 
-    print('Second dataset size:', len(cifar100_trainset1)) #trainset1 - with classes
+    print('First (coarse) dataset size:', len(cifar100_trainset2)) #trainset2 - with coarse 
+    print('Second (fine) dataset size:', len(cifar100_trainset1)) #trainset1 - with classes
     
     cifar100_trainset2_1=change_labels_to_coarse(cifar100_trainset2)
+    
+    print("\nCoarse dataset labels:")
+    for i in range(20):
+      print(cifar100_trainset2[i][1], "-->", cifar100_trainset2_1[i][1])
+      
+    print("\nFine dataset labels:")
+    for i in range(20):
+      print(cifar100_trainset1[i][1])
+    print()
    
     cifar100_training_loader1 = DataLoader(
           cifar100_trainset1, shuffle=shuffle, num_workers=num_workers, batch_size=batch_size)
