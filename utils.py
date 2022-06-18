@@ -200,7 +200,7 @@ def twoComponentLoss(outputs, class_labels, superclass_labels):
     for i in range(len(outputs)):
         coarse.append([])
         
-    for i in range(len(outputs)): #по максимуму/сумме выходов для классов определяю выходы для суперклассов
+    for i in range(len(outputs)): #по максимуму/сумме выходов для классов определяются выходы для суперклассов
         coarse[i].append(func([outputs[i][72], outputs[i][4], outputs[i][95], outputs[i][30], outputs[i][55]]))
         coarse[i].append(func([outputs[i][73], outputs[i][32], outputs[i][67], outputs[i][91], outputs[i][1]]))
         coarse[i].append(func([outputs[i][92], outputs[i][70], outputs[i][82], outputs[i][54], outputs[i][62]]))
@@ -223,11 +223,17 @@ def twoComponentLoss(outputs, class_labels, superclass_labels):
         coarse[i].append(func([outputs[i][81], outputs[i][69], outputs[i][41], outputs[i][89], outputs[i][85]]))
         
     print(coarse)
-    #input()
-    l1=loss(outputs, class_labels)
+    l1=loss(torch.tensor(coarse).cuda(), superclass_labels)
+    
     print(l1)
-    l2=loss(torch.tensor(coarse).cuda(), superclass_labels)
+    
+    mask = class_labels >= 0
+    indices = torch.nonzero(mask) 
+    
+    l2=loss(torch.tensor(outputs[indices]).cuda(), torch.tensor(class_labels[indices]).cuda())
+    
     print(l2)
+    
   
 def get_training_dataloader(mean, std, batch_size=16, num_workers=2, shuffle=True):
     """ return training dataloader
