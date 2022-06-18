@@ -223,17 +223,23 @@ def twoComponentLoss(outputs, class_labels, superclass_labels):
         coarse[i].append(func([outputs[i][8], outputs[i][58], outputs[i][90], outputs[i][13], outputs[i][48]]))
         coarse[i].append(func([outputs[i][81], outputs[i][69], outputs[i][41], outputs[i][89], outputs[i][85]]))
         
-    print(coarse)
+    #print(coarse)
     l1=loss(torch.tensor(coarse).cuda(), superclass_labels)
     
-    print(l1)
+    #print(l1)
     
     mask = class_labels >= 0
     indices = torch.nonzero(mask) 
     
-    l2=loss(torch.tensor(outputs[indices]).cuda(), torch.tensor(class_labels[indices]).cuda())
+    outs1=torch.tensor(outputs[indices]).cuda()
+    classes1=torch.tensor(class_labels[indices]).cuda()
     
-    print(l2)
+    print("shape of outs1: ", outs1.size())
+    print("shape of classes1: ", classes1.size())
+    
+    l2=loss(outs1, classes1)
+    
+    #print(l2)
     
   
 def get_training_dataloader(mean, std, batch_size=16, num_workers=2, shuffle=True):
