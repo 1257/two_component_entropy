@@ -228,23 +228,25 @@ def twoComponentLoss(outputs, class_labels, superclass_labels):
     
     #print(l1)
     
-    mask = class_labels >= 0
+    mask = class_labels < 0
     indices = torch.nonzero(mask) 
     
     for i in indices:
-      outputs[i][2]=-1
+      outputs[i][2]=0
+      class_labels[i]=0
     
     outs1=torch.tensor(outputs).cuda()
     classes1=torch.tensor(class_labels).cuda()
     
-    print("outs1: ", outs1)
+    #print("outs1: ", outs1)
     
-    print("shape of outs1: ", outs1.size())
-    print("shape of classes1: ", classes1.size())
+    #print("shape of outs1: ", outs1.size())
+    #print("shape of classes1: ", classes1.size())
     
-    l2=loss(outs1, classes1)
+    l2=loss(outs1, classes1)   
+    print(l2)
     
-    #print(l2)
+    return 0.7*l1+0.3*l2
     
   
 def get_training_dataloader(mean, std, batch_size=16, num_workers=2, shuffle=True):
