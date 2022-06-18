@@ -234,6 +234,8 @@ def twoComponentLoss(outputs, class_labels, superclass_labels):
     outs1=torch.tensor(outputs[indices]).cuda()
     classes1=torch.tensor(class_labels[indices]).cuda()
     
+    print("outs1: ", outs1)
+    
     print("shape of outs1: ", outs1.size())
     print("shape of classes1: ", classes1.size())
     
