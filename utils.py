@@ -270,7 +270,7 @@ def get_training_dataloader(mean, std, batch_size=16, num_workers=2, shuffle=Tru
       cifar100_trainset2[i].append(-1)
     
     for i in range(settings.COMPLEX_TRAINSET_SIZE):
-        cifar100_trainset1[i].append(superclass[cifar100_trainset1[i][1])
+        cifar100_trainset1[i].append(superclass[cifar100_trainset1[i][1]])
     
     cifar100_global_dataset=cifar100_trainset2+cifar100_trainset1
     print("\nglobal dataset labels:")
