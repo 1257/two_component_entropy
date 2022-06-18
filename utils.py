@@ -11,6 +11,7 @@ from conf import settings
 import numpy
 
 import torch
+import torch.nn as nn
 from torch.optim.lr_scheduler import _LRScheduler
 import torchvision
 import torchvision.transforms as transforms
