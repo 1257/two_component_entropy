@@ -141,6 +141,8 @@ class ResNet(nn.Module):
         self.conv4_x.requires_grad = False
         self.conv5_x.requires_grad = False
         
+        print("model has been frozen")
+        
     def unfreeze(self):
         self.conv1.requires_grad = True
         self.conv2_x.requires_grad = True
@@ -148,8 +150,12 @@ class ResNet(nn.Module):
         self.conv4_x.requires_grad = True
         self.conv5_x.requires_grad = True
         
+        print("model has been unfrozen")
+        
     def set_output_size(self, size):
         self.fc = nn.Linear(512, size)
+        print("set output layer size:", size)
+        print("output layer:", self.fc)
 
 def resnet18():
     """ return a ResNet 18 object
