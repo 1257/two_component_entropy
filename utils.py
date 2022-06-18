@@ -262,7 +262,9 @@ def get_training_dataloader(mean, std, batch_size=16, num_workers=2, shuffle=Tru
     cifar100_trainset1_1, cifar100_trainset2 = torch.utils.data.random_split(cifar100_training, [settings.COMPLEX_TRAINSET_SIZE, 50000-settings.COMPLEX_TRAINSET_SIZE], generator=torch.Generator().manual_seed(0))
   
     for i in range(settings.COMPLEX_TRAINSET_SIZE):
-      cifar100_trainset1_1[i].append(cifar100_trainset1_1[i][1])
+      buf=list(cifar100_trainset1_1[i])
+      buf.append(cifar100_trainset1_1[i][1])
+      cifar100_trainset1_1[i]=tuple(buf)
       
     cifarcifar100_trainset1 = change_labels_to_coarse(cifar100_trainset1_1)
      
