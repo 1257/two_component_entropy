@@ -193,11 +193,10 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     net = get_network(args)
-    net.set_output_size(20) 
     net=net.cuda()
 
     #data preprocessing:
-    cifar100_coarse_training_loader, cifar100_fine_training_loader = get_splitted_dataloaders(
+    cifar100_training_loader = get_training_dataloader(
         settings.CIFAR100_TRAIN_MEAN,
         settings.CIFAR100_TRAIN_STD,
         num_workers=4,
@@ -222,10 +221,10 @@ if __name__ == '__main__':
     )
 
     loss_function = nn.CrossEntropyLoss()
-    loss_function2 = utils.twoComponentLoss
+    loss_function2 = twoComponentLoss
     optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
     train_scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=settings.PREMILESTONES, gamma=0.2) #learning rate decay
-    iter_per_epoch = len(cifar100_coarse_training_loader)
+    iter_per_epoch = len(cifar100_training_loader)
     warmup_scheduler = WarmUpLR(optimizer, iter_per_epoch * args.warm)
 
     if args.resume:
@@ -286,7 +285,7 @@ if __name__ == '__main__':
                 continue
 
         train(epoch, cifar100_coarse_training_loader)
-        acc = eval_training(cifar100_coarse_test_loader, True, epoch)
+        acc = eval_training(cifar100_test_loader, True, epoch)
 
         #start to save best performance model after learning rate decay to 0.01
         if epoch > settings.PREMILESTONES[1] and best_acc < acc:
