@@ -305,6 +305,11 @@ def get_coarse_test_dataloader(mean, std, batch_size=16, num_workers=2, shuffle=
     
     cifar100_test1 = change_labels_to_coarse(cifar100_test)
     
+    print("Generated coarse set. Labels:")
+    for i in range(10):
+      print(cifar100_test[i][1], "-->", cifar100_test1[i][1])
+    print()
+    
     cifar100_test_loader = DataLoader(
         cifar100_test1, shuffle=shuffle, num_workers=num_workers, batch_size=batch_size)
 
