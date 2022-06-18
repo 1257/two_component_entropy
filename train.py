@@ -64,7 +64,7 @@ def train(epoch, trainloader):
         optimizer.zero_grad()
         outputs = net(images)
         loss = loss_function(outputs, labels)
-        wandb.log({"loss": loss})
+        wandb.log({"trainloss": loss})
         loss.backward()
         optimizer.step()
 
@@ -164,6 +164,7 @@ def eval_training(testloader, only_coarse, epoch=0, tb=True):
         wandb.log({"accuracy 20": correctCoarse.float() / len(testloader.dataset)})
     else:
         wandb.log({"accuracy 20": correct.float() / len(testloader.dataset)})
+    wandb.log({"testloss": test_loss / len(testloader.dataset)})
 
     #add informations to tensorboard
     if tb:
