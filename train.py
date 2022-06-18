@@ -23,7 +23,7 @@ from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
 from conf import settings
-from utils import get_network, get_training_dataloader, get_splitted_dataloaders, get_test_dataloader, get_coarse_test_dataloader, WarmUpLR, \
+from utils import get_network, twoComponentLoss, get_training_dataloader, get_splitted_dataloaders, get_test_dataloader, get_coarse_test_dataloader, WarmUpLR, \
     most_recent_folder, most_recent_weights, last_epoch, best_acc_weights
 
 #from entropy_2_levels import entropy2lvl
@@ -222,6 +222,7 @@ if __name__ == '__main__':
     )
 
     loss_function = nn.CrossEntropyLoss()
+    loss_function2 = utils.twoComponentLoss
     optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
     train_scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=settings.PREMILESTONES, gamma=0.2) #learning rate decay
     iter_per_epoch = len(cifar100_coarse_training_loader)
@@ -299,72 +300,5 @@ if __name__ == '__main__':
             weights_path = checkpoint_path.format(net=args.net, epoch=epoch, type='regular')
             print('saving weights file to {}'.format(weights_path))
             torch.save(net.state_dict(), weights_path)
-            
-#-------------------------------------------part 2-------------------------------------------------------
-    net.set_output_size(100)
-    net.freeze()
-    net=net.cuda()
-    optimizer1 = optim.SGD(filter(lambda x: x.requires_grad, net.parameters()), lr=args.lr, momentum=0.9, weight_decay=5e-4)
-    #optimizer1 = optim.SGD(net.parameters(), lr=0.1, momentum=0.9, weight_decay=5e-4)
-    train_scheduler1 = optim.lr_scheduler.MultiStepLR(optimizer1, milestones=settings.MILESTONES_CLASS, gamma=0.2) #learning rate decay
-    iter_per_epoch1 = len(cifar100_fine_training_loader)
-    warmup_scheduler1 = WarmUpLR(optimizer1, iter_per_epoch1 * args.warm)        
-    
-    for epoch in range(1, settings.EPOCH_CLASS + 1):
-        if epoch > args.warm:
-            train_scheduler1.step(epoch)
-
-        if args.resume:
-            if epoch <= resume_epoch:
-                continue
-
-        train(epoch, cifar100_fine_training_loader)
-        acc = eval_training(cifar100_fine_training_loader, False, epoch)
-
-        #start to save best performance model after learning rate decay to 0.01
-        if epoch > settings.MILESTONES_CLASS[1] and best_acc < acc:
-            weights_path = checkpoint_path.format(net=args.net, epoch=epoch, type='best')
-            print('saving weights file to {}'.format(weights_path))
-            torch.save(net.state_dict(), weights_path)
-            best_acc = acc
-            continue
-
-        if not epoch % settings.SAVE_EPOCH:
-            weights_path = checkpoint_path.format(net=args.net, epoch=epoch, type='regular')
-            print('saving weights file to {}'.format(weights_path))
-            torch.save(net.state_dict(), weights_path)
-            
-      
-    #-------------------------------------------part 3-------------------------------------------------------
-    net.unfreeze()
-    net=net.cuda()
-    #optimizer2 = optim.SGD(net.parameters(), lr=0.1, momentum=0.9, weight_decay=5e-4)
-    optimizer2 = optim.SGD(filter(lambda x: x.requires_grad, net.parameters()), lr=args.lr, momentum=0.9, weight_decay=5e-4)
-    train_scheduler2 = optim.lr_scheduler.MultiStepLR(optimizer2, milestones=settings.AFTERMILESTONES , gamma=0.2) #learning rate decay
-    iter_per_epoch2 = len(cifar100_fine_training_loader)
-    warmup_scheduler2 = WarmUpLR(optimizer2, iter_per_epoch1 * args.warm)        
-    
-    for epoch in range(1, settings.EPOCH + 1):
-        if epoch > args.warm:
-            train_scheduler2.step(epoch)
-
-        if args.resume:
-            if epoch <= resume_epoch:
-                continue
-
-        train(epoch, cifar100_fine_training_loader)
-        acc = eval_training(cifar100_fine_training_loader, False, epoch)
-
-        #start to save best performance model after learning rate decay to 0.01
-        if epoch > settings.AFTERMILESTONES[1] and best_acc < acc:
-            weights_path = checkpoint_path.format(net=args.net, epoch=epoch, type='best')
-            print('saving weights file to {}'.format(weights_path))
-            torch.save(net.state_dict(), weights_path)
-            best_acc = acc
-            continue
-
-        if not epoch % settings.SAVE_EPOCH:
-            weights_path = checkpoint_path.format(net=args.net, epoch=epoch, type='regular')
-            print('saving weights file to {}'.format(weights_path))
-            torch.save(net.state_dict(), weights_path)        
+        
     writer.close()
