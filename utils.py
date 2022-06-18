@@ -192,7 +192,7 @@ def change_labels_to_coarse(dataset):
     
     return newset
 
-def twoComponentLoss(outputs, class_labels):
+def twoComponentLoss(outputs, class_labels, superclass_labels):
     loss = nn.CrossEntropyLoss()
     func=max
     
@@ -223,7 +223,11 @@ def twoComponentLoss(outputs, class_labels):
         coarse[i].append(func([outputs[i][81], outputs[i][69], outputs[i][41], outputs[i][89], outputs[i][85]]))
         
     print(coarse)
-    input()
+    #input()
+    l1=loss(outputs, class_labels)
+    print(l1)
+    l2=loss(torch.tensor(coarse).cuda(), superclass_labels)
+    print(l2)
   
 def get_training_dataloader(mean, std, batch_size=16, num_workers=2, shuffle=True):
     """ return training dataloader
