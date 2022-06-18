@@ -259,15 +259,18 @@ def get_training_dataloader(mean, std, batch_size=16, num_workers=2, shuffle=Tru
     cifar100_training = torchvision.datasets.CIFAR100(root='./data', train=True, download=True, transform=transform_train)
     
     
-    cifar100_trainset1_1, cifar100_trainset2 = torch.utils.data.random_split(cifar100_training, [settings.COMPLEX_TRAINSET_SIZE, 50000-settings.COMPLEX_TRAINSET_SIZE], generator=torch.Generator().manual_seed(0))
+    cifar100_trainset1, cifar100_trainset2 = torch.utils.data.random_split(cifar100_training, [settings.COMPLEX_TRAINSET_SIZE, 50000-settings.COMPLEX_TRAINSET_SIZE], generator=torch.Generator().manual_seed(0))
   
-    cifar100_trainset1_1=list(cifar100_trainset1_1)
-    for i in range(len(cifar100_trainset1_1)):
-      cifar100_trainset1_1[i]=list(cifar100_trainset1_1[i])
-      cifar100_trainset1_1[i].append(cifar100_trainset1_1[i][1])
-      cifar100_trainset1_1[i]=tuple(cifar100_trainset1_1[i])
+    cifar100_trainset1=list(cifar100_trainset1)
+    for i in range(len(cifar100_trainset1)):
+      cifar100_trainset1[i]=list(cifar100_trainset1[i])
+      cifar100_trainset1[i].append(cifar100_trainset1[i][1])
+      cifar100_trainset1[i]=tuple(cifar100_trainset1[i])
       
-    cifar100_trainset1 = change_labels_to_coarse(cifar100_trainset1_1)
+    cifar100_trainset1_1 = change_labels_to_coarse(cifar100_trainset1)
+    print("\nfine train loader labels examples:")
+    for i in range(10):
+      print(cifar100_trainset1_1[i][1], ', ', cifar100_trainset1_1[i][2])
      
     cifar100_trainset2=list(cifar100_trainset2)
     for i in range(len(cifar100_trainset2)):
@@ -275,9 +278,12 @@ def get_training_dataloader(mean, std, batch_size=16, num_workers=2, shuffle=Tru
       cifar100_trainset2[i].append(-1)
       cifar100_trainset2[i]=tuple(cifar100_trainset2[i])
       
-    cifar100_trainset1 = change_labels_to_coarse(cifar100_trainset2)
+    cifar100_trainset2_1 = change_labels_to_coarse(cifar100_trainset2)
+    print("\ncoarse train loader labels examples:")
+    for i in range(10):
+      print(cifar100_trainset2_1[i][1], ', ', cifar100_trainset2_1[i][2])
     
-    cifar100_global_dataset=cifar100_trainset2+cifar100_trainset1
+    cifar100_global_dataset=cifar100_trainset2_1+cifar100_trainset1_1
     print("\nglobal dataset labels:")
     for i in range(20):
         print(cifar100_global_dataset[i][1], '-->', cifar100_global_dataset[i][2])
