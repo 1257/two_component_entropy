@@ -212,14 +212,6 @@ if __name__ == '__main__':
         shuffle=True
     )
     
-    cifar100_coarse_test_loader = get_coarse_test_dataloader(
-        settings.CIFAR100_TRAIN_MEAN,
-        settings.CIFAR100_TRAIN_STD,
-        num_workers=4,
-        batch_size=args.b,
-        shuffle=True
-    )
-
     loss_function = nn.CrossEntropyLoss()
     loss_function2 = twoComponentLoss
     optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
@@ -284,7 +276,7 @@ if __name__ == '__main__':
             if epoch <= resume_epoch:
                 continue
 
-        train(epoch, cifar100_coarse_training_loader)
+        train(epoch, cifar100_training_loader)
         acc = eval_training(cifar100_test_loader, True, epoch)
 
         #start to save best performance model after learning rate decay to 0.01
