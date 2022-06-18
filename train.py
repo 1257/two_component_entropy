@@ -65,7 +65,7 @@ def train(epoch, trainloader):
         optimizer.zero_grad()
         outputs = net(images)
         loss = loss_function(outputs, labels, superclass_labels)  #set func
-        wandb.log({"trainloss": loss})
+        #wandb.log({"trainloss": loss})
         loss.backward()
         optimizer.step()
 
