@@ -257,9 +257,10 @@ def twoComponentLoss(outputs, class_labels, superclass_labels):
     #print(l2)
     
     l2=F.cross_entropy(torch.tensor(outputs).cuda(), class_labels)
-    print(l2)
+    print("\n\nl2:", l2)
     
     summary_loss=0.7*l1+0.3*l2
+    print("\n\nsummary_loss:", summary_loss)
     
     return summary_loss
     
