@@ -233,7 +233,7 @@ def twoComponentLoss(outputs, class_labels, superclass_labels):
     mask = class_labels < 0
     indices = torch.nonzero(mask) 
     
-    for i in len(class_labels):
+    for i in range(len(class_labels)):
       if i in indices:
         outputs = torch.cat((outputs[:i,:], outputs[i:,:]), dim = 0)
         class_labels=torch.cat((class_labels[:i], class_labels[i:]), dim = 0)
