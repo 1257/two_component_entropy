@@ -230,14 +230,17 @@ def twoComponentLoss(outputs, class_labels, superclass_labels):
     l1=F.cross_entropy(torch.tensor(coarse).cuda(), superclass_labels)
     print("\n\nl1", l1)
     
-    print("\n\noutputs after coarse: ", outputs)
-    
     mask = class_labels < 0
     indices = torch.nonzero(mask) 
     
-    #for i in indices:
-    #  outputs = torch.cat((outputs[:i,:], outputs[i:,:]), dim = 0)
-    #  class_labels=torch.cat((class_labels[:i], class_labels[i:]), dim = 0)
+    for i in len(class_labels):
+      if i in indices:
+        outputs = torch.cat((outputs[:i,:], outputs[i:,:]), dim = 0)
+        class_labels=torch.cat((class_labels[:i], class_labels[i:]), dim = 0)
+      else:
+        i=i+1
+    
+    print("\n\noutputs after deleting: ", outputs)
     
     #outs1=torch.tensor(outputs).cuda()
     #classes1=torch.tensor(class_labels).cuda()
