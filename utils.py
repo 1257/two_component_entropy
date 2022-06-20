@@ -235,12 +235,13 @@ def twoComponentLoss(outputs, class_labels, superclass_labels):
     
     for i in range(len(class_labels)):
       if i in indices:
-        outputs = torch.cat((outputs[:i,:], outputs[i:,:]), dim = 0)
-        class_labels=torch.cat((class_labels[:i], class_labels[i:]), dim = 0)
+        outputs = torch.cat((outputs[:i,:], outputs[i+1:,:]), dim = 0)
+        class_labels=torch.cat((class_labels[:i], class_labels[i+1:]), dim = 0)
       else:
         i=i+1
     
     print("\n\noutputs after deleting: ", outputs)
+    print("\n\nclass_labels: ", class_labels)
     
     #outs1=torch.tensor(outputs).cuda()
     #classes1=torch.tensor(class_labels).cuda()
@@ -249,7 +250,7 @@ def twoComponentLoss(outputs, class_labels, superclass_labels):
     
     print("shape of outputs: ", outputs.size())
     print("shape of class_labels: ", class_labels.size())
-    
+        
     #l2=loss(outputs, class_labels)   
     #print(l2)
     
