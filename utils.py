@@ -224,17 +224,17 @@ def twoComponentLoss(outputs, class_labels, superclass_labels):
         coarse[i].append(func([outputs[i][8], outputs[i][58], outputs[i][90], outputs[i][13], outputs[i][48]]))
         coarse[i].append(func([outputs[i][81], outputs[i][69], outputs[i][41], outputs[i][89], outputs[i][85]]))
         
-    #print(coarse)
+    print("\n\ncoarse",coarse)
     #l1=loss(torch.tensor(coarse).cuda(), superclass_labels)
     l1=F.cross_entropy(torch.tensor(coarse).cuda(), superclass_labels)
-    print(l1)
+    print("\n\nl1", l1)
     
     mask = class_labels < 0
     indices = torch.nonzero(mask) 
     
-    for i in indices:
-      outputs = torch.cat((outputs[:i,:], outputs[i:,:]), dim = 0)
-      class_labels=torch.cat((class_labels[:i], class_labels[i:]), dim = 0)
+    #for i in indices:
+    #  outputs = torch.cat((outputs[:i,:], outputs[i:,:]), dim = 0)
+    #  class_labels=torch.cat((class_labels[:i], class_labels[i:]), dim = 0)
     
     #outs1=torch.tensor(outputs).cuda()
     #classes1=torch.tensor(class_labels).cuda()
