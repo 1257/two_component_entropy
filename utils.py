@@ -197,7 +197,7 @@ def change_labels_to_coarse(dataset):
 def twoComponentLoss(outputs, class_labels, superclass_labels):
     loss = nn.CrossEntropyLoss()
     func=max
-    
+    print("\n\noutputs: ", outputs)
     coarse = []
     for i in range(len(outputs)):
         coarse.append([])
