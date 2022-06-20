@@ -12,6 +12,7 @@ import numpy
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from torch.optim.lr_scheduler import _LRScheduler
 import torchvision
 import torchvision.transforms as transforms
@@ -224,9 +225,9 @@ def twoComponentLoss(outputs, class_labels, superclass_labels):
         coarse[i].append(func([outputs[i][81], outputs[i][69], outputs[i][41], outputs[i][89], outputs[i][85]]))
         
     #print(coarse)
-    l1=loss(torch.tensor(coarse).cuda(), superclass_labels)
-    
-    #print(l1)
+    #l1=loss(torch.tensor(coarse).cuda(), superclass_labels)
+    l1=F.cross_entropy(torch.tensor(coarse).cuda(), superclass_labels)
+    print(l1)
     
     mask = class_labels < 0
     indices = torch.nonzero(mask) 
@@ -243,8 +244,11 @@ def twoComponentLoss(outputs, class_labels, superclass_labels):
     print("shape of outputs: ", outputs.size())
     print("shape of class_labels: ", class_labels.size())
     
-    l2=loss(outputs, class_labels)   
+    #l2=loss(outputs, class_labels)   
     #print(l2)
+    
+    l2=F.cross_entropy(torch.tensor(outputs).cuda(), class_labels)
+    print(l2)
     
     return 0.7*l1+0.3*l2
     
