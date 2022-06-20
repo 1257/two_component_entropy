@@ -203,7 +203,7 @@ def twoComponentLoss(outputs, class_labels, superclass_labels):
         coarse.append([])
         
     for i in range(len(outputs)): #по максимуму/сумме выходов для классов определяются выходы для суперклассов
-        coarse[i].append(func([outputs[i][72], outputs[i][4], outputs[i][95], outputs[i][30], outputs[i][55]]))
+        coarse[i].append(func(torch.tensor([[outputs[i][72], outputs[i][4], outputs[i][95], outputs[i][30], outputs[i][55]]])))
         coarse[i].append(func([outputs[i][73], outputs[i][32], outputs[i][67], outputs[i][91], outputs[i][1]]))
         coarse[i].append(func([outputs[i][92], outputs[i][70], outputs[i][82], outputs[i][54], outputs[i][62]]))
         coarse[i].append(func([outputs[i][16], outputs[i][61], outputs[i][9], outputs[i][10], outputs[i][28]]))
