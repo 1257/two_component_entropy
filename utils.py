@@ -238,7 +238,7 @@ def twoComponentLoss(outputs, class_labels, superclass_labels):
       if class_labels[i]<0:
         outputs = torch.cat((outputs[:i,:], outputs[i+1:,:]), dim = 0)
         class_labels=torch.cat((class_labels[:i], class_labels[i+1:]), dim = 0)
-        print(i)
+        #print(i)
       else:
         i=i+1
     
@@ -259,7 +259,9 @@ def twoComponentLoss(outputs, class_labels, superclass_labels):
     l2=F.cross_entropy(torch.tensor(outputs).cuda(), class_labels)
     print(l2)
     
-    return 0.7*l1+0.3*l2
+    summary_loss=0.7*l1+0.3*l2
+    
+    return summary_loss
     
   
 def get_training_dataloader(mean, std, batch_size=16, num_workers=2, shuffle=True):
