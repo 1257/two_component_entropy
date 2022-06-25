@@ -262,7 +262,7 @@ def twoComponentLoss(outputs, class_labels, superclass_labels):
     one_max_result = [torch.max(one_gather_result[i]) for i in range(20)]
     print("\n\nsingle output max result:", one_max_result)
     print("\n\nsingle otput max size:", len(one_max_result))
-    #--------------------------------------------------------------------------------------------------------------------
+    #-----------------------------------------------------------------------------------------------------------------
     
     #with multiple outputs------------------------------------------------------------------------------------------
     gather_results = torch.cat([torch.cat([torch.gather(outputs[j], 0, torch.tensor(indexes[i]).cuda()) for i in range(20)], 0) for j in range(len(class_labels))], 0)
@@ -273,7 +273,7 @@ def twoComponentLoss(outputs, class_labels, superclass_labels):
     
     
     combos = [[torch.gather(outputs[j], 0, torch.tensor(indexes[i]).cuda()) for i in range(20)] for j in range(len(class_labels))]
-    outs = torch.cat(combos, 0)
+    outs = torch.cat(combos, dim=2)
     print("\ncombo len:", len(combos))
     print("\ncombo[0] len:", len(combos[0]))
     l1=F.cross_entropy(outs, superclass_labels)
