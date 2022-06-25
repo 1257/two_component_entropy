@@ -259,32 +259,15 @@ def twoComponentLoss(outputs, class_labels, superclass_labels):
     one_gather_result = [torch.gather(outputs[0], 0, torch.tensor(indexes[i]).cuda()) for i in range(20)]
     print("\n\nsingle output gather+max result:", one_gather_result)
     
-    one_max_result = [torch.max(one_gather_result[i]) for i in range(20)]
+    one_max_result = torch.tensor([torch.max(one_gather_result[i]) for i in range(20)])
     print("\n\nsingle output max result:", one_max_result)
     print("\n\nsingle otput max size:", len(one_max_result))
-    
-    tens_mas = torch.randn(128, 20).cuda()
-    for i in range(128):
-      for j in range(20):
-        tens_mas[i][j]=torch.gather(outputs[i], 1, torch.tensor(indexes[j]).cuda())
-    print("\n\ntens_mas[0]:", tens_mas[0])
     #-----------------------------------------------------------------------------------------------------------------
     
     #with multiple outputs------------------------------------------------------------------------------------------
-    gather_results = torch.cat([torch.cat([torch.gather(outputs[j], 0, torch.tensor(indexes[i]).cuda()) for i in range(20)], 0) for j in range(len(class_labels))], 0)
-    print("\n\nlen of all gather:", gather_results.size())
-    print("\n\nlen of gather_result[0]:", gather_results[0].size())
-    #max_results = [[torch.max(one_gather_result[j][i]) for i in range(20)] for j in range(len(class_labels))]
-    #print("\n\nall maximums:", max_results)
-    
-    
-    combos = [[torch.gather(outputs[j], 0, torch.tensor(indexes[i]).cuda()) for i in range(20)] for j in range(len(class_labels))]
-    outs = torch.cat(combos, dim=2)
-    print("\ncombo len:", len(combos))
-    print("\ncombo[0] len:", len(combos[0]))
-    l1=F.cross_entropy(outs, superclass_labels)
+            
     #------------------------------------------------------------------------------------------------------------
-    
+    l1=F.cross_entropy(outs, superclass_labels)
     #l1=loss(torch.tensor(coarse).cuda(), superclass_labels)
     #l1=F.cross_entropy(torch.tensor(coarse).cuda(), superclass_labels)
     print("\n\nl1", l1)
