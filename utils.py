@@ -260,6 +260,7 @@ def twoComponentLoss(outputs, class_labels, superclass_labels):
     
     one_max_result = [torch.max(one_gather_result[i]) for i in range(20)]
     print("\n\nsingle output max result:", one_max_result)
+    print("\n\nsingle otput max size:", len(one_max_result))
     #--------------------------------------------------------------------------------------------------------------------
     
     #with multiple outputs------------------------------------------------------------------------------------------
