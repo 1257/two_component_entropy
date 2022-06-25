@@ -270,6 +270,11 @@ def twoComponentLoss(outputs, class_labels, superclass_labels):
     print("\n\nlen of gather_result[0]:", gather_results[0].size())
     #max_results = [[torch.max(one_gather_result[j][i]) for i in range(20)] for j in range(len(class_labels))]
     #print("\n\nall maximums:", max_results)
+    
+    
+    combos = [[torch.gather(outputs[j], 0, torch.tensor(indexes[i]).cuda()) for i in range(20)] for j in range(len(class_labels))]
+    print("\ncombo len:", len(combos))
+    print("\ncombo[0] len:", len(combos[0]))
     #------------------------------------------------------------------------------------------------------------
     
     #l1=loss(torch.tensor(coarse).cuda(), superclass_labels)
