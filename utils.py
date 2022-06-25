@@ -220,6 +220,7 @@ def twoComponentLoss(outputs, class_labels, superclass_labels):
     func=max
     print("\n\nclass_labels: ", class_labels)
     print("\n\noutputs: ", outputs)
+    print("\noutputs size:", outputs.size())
     coarse = []
     for i in range(len(outputs)):
         coarse.append([])
