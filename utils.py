@@ -264,9 +264,9 @@ def twoComponentLoss(outputs, class_labels, superclass_labels):
     
     #with multiple outputs------------------------------------------------------------------------------------------
     gather_results = [[torch.gather(outputs[j], 0, torch.tensor(indexes[i]).cuda()) for i in range(20)] for j in range(len(class_labels))]
-    print("\n\nsize of all gather:", len(gather_results))
-    max_results = [[torch.max(one_gather_result[j][i]) for i in range(20)] for j in range(len(class_labels))]
-    print("\n\nall maximums:", max_results)
+    print("\n\nall gather:", gather_results)
+    #max_results = [[torch.max(one_gather_result[j][i]) for i in range(20)] for j in range(len(class_labels))]
+    #print("\n\nall maximums:", max_results)
     #------------------------------------------------------------------------------------------------------------
     
     #l1=loss(torch.tensor(coarse).cuda(), superclass_labels)
