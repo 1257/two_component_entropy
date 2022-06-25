@@ -226,6 +226,9 @@ def twoComponentLoss(outputs, class_labels, superclass_labels):
         coarse[i].append(func([outputs[i][81], outputs[i][69], outputs[i][41], outputs[i][89], outputs[i][85]]))
         
     print("\n\ncoarse",coarse)
+    
+    print("\n\noutputs[0]:", outputs[0])
+    print("\n\ngather result:", torch.gather(outputs[0], 1, torch.tensor([[72, 4, 95, 30, 55]])))
     #l1=loss(torch.tensor(coarse).cuda(), superclass_labels)
     l1=F.cross_entropy(torch.tensor(coarse).cuda(), superclass_labels)
     print("\n\nl1", l1)
