@@ -266,7 +266,7 @@ def twoComponentLoss(outputs, class_labels, superclass_labels):
     tens_mas = torch.randn(128, 20).cuda()
     for i in range(128):
       for j in range(20):
-        tens_mas[i][j]=torch.gather(outputs[i], 0, torch.tensor(indexes[j]).cuda())
+        tens_mas[i][j]=torch.gather(outputs[i], 1, torch.tensor(indexes[j]).cuda())
     print("\n\ntens_mas[0]:", tens_mas[0])
     #-----------------------------------------------------------------------------------------------------------------
     
