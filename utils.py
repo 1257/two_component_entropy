@@ -194,6 +194,27 @@ def change_labels_to_coarse(dataset):
     
     return newset
 
+indexes = [[72,  4, 95, 30, 55],
+           [73, 32, 67, 91,  1],
+           [92, 70, 82, 54, 62],
+           [16, 61,  9, 10, 28],
+           [51,  0, 53, 57, 83],
+           [40, 39, 22, 87, 86],
+           [20, 25, 94, 84,  5],
+           [14, 24,  6,  7, 18],
+           [43, 97, 42,  3, 88],
+           [37, 17, 76, 12, 68],
+           [49, 33, 71, 23, 60],
+           [15, 21, 19, 31, 38],
+           [75, 63, 64, 66, 34],
+           [77, 26, 45, 99, 79],
+           [11,  2, 35, 46, 98],
+           [29, 93, 27, 78, 44],
+           [65, 50, 74, 36, 80],
+           [56, 52, 47, 59, 96],
+           [ 8, 58, 90, 13, 48],
+           [81, 69, 41, 89, 85]]
+  
 def twoComponentLoss(outputs, class_labels, superclass_labels):
     loss = nn.CrossEntropyLoss()
     func=max
@@ -228,7 +249,10 @@ def twoComponentLoss(outputs, class_labels, superclass_labels):
     print("\n\ncoarse",coarse)
     
     print("\n\noutputs[0]:", outputs[0])
-    print("\n\ngather result:", torch.gather(outputs[0], 0, torch.tensor([72, 4, 95, 30, 55]).cuda()))
+    gather_result = torch.gather(outputs[0], 0, torch.tensor(indexes[0]).cuda())
+    print("\n\ngather result:", gather_result)
+    max_result = torch.max(gather_result)
+    print("\n\nmax result:", max_result)
     #l1=loss(torch.tensor(coarse).cuda(), superclass_labels)
     l1=F.cross_entropy(torch.tensor(coarse).cuda(), superclass_labels)
     print("\n\nl1", l1)
