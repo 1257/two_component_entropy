@@ -262,6 +262,12 @@ def twoComponentLoss(outputs, class_labels, superclass_labels):
     one_max_result = [torch.max(one_gather_result[i]) for i in range(20)]
     print("\n\nsingle output max result:", one_max_result)
     print("\n\nsingle otput max size:", len(one_max_result))
+    
+    tens_mas = torch.randn(128, 20).cuda()
+    for i in range(128):
+      for i in range(20):
+        tens_mas[i][j]=torch.gather(outputs[i], 0, tensor(indexes[i]).cuda())
+    print("\n\ntens_mas[0]:", tens_mas[0])
     #-----------------------------------------------------------------------------------------------------------------
     
     #with multiple outputs------------------------------------------------------------------------------------------
