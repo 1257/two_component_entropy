@@ -273,9 +273,10 @@ def twoComponentLoss(outputs, class_labels, superclass_labels):
     
     
     combos = [[torch.gather(outputs[j], 0, torch.tensor(indexes[i]).cuda()) for i in range(20)] for j in range(len(class_labels))]
+    outs = torch.gather(combos, 0)
     print("\ncombo len:", len(combos))
     print("\ncombo[0] len:", len(combos[0]))
-    l1=F.cross_entropy(torch.tensor(combos).cuda(), superclass_labels)
+    l1=F.cross_entropy(outs, superclass_labels)
     #------------------------------------------------------------------------------------------------------------
     
     #l1=loss(torch.tensor(coarse).cuda(), superclass_labels)
