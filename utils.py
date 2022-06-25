@@ -254,8 +254,8 @@ def twoComponentLoss(outputs, class_labels, superclass_labels):
     max_result1 = torch.max(gather_result1)
     print("\n\nmax result:", max_result1)
     
-    one_gather_result = [torch.gather(outputs[0], 0, torch.tensor(indexes[i]).cuda()) for i in range(20)]
-    print("\n\nsingle output gather result:", one_gather_result)
+    one_gather_result = [torch.max(torch.gather(outputs[0], 0, torch.tensor(indexes[i]).cuda()) for i in range(20))]
+    print("\n\nsingle output gather+max result:", one_gather_result)
     
     #l1=loss(torch.tensor(coarse).cuda(), superclass_labels)
     l1=F.cross_entropy(torch.tensor(coarse).cuda(), superclass_labels)
